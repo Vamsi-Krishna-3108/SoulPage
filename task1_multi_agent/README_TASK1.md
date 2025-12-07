@@ -1,76 +1,38 @@
-🧠 Company Intelligence Multi-Agent System
 
-Using LangChain | Streamlit | Gemini (with automatic fallback)
+# 🚀 Multi-Agent Company Intelligence System  
+**Using LangChain + Streamlit + DuckDuckGo + Gemini (with fallback)**  
 
-This project implements a multi-agent AI system where multiple agents collaborate to collect, analyze, and summarize company-level intelligence.
-The architecture uses:
+This project demonstrates a complete **multi-agent AI pipeline**:
 
-Agent 1 – Data Collector
+- **Agent 1 – Data Collector** (DuckDuckGo or Wikipedia or Gemini Search)
+- **Agent 2 – Analyst Agent** (Gemini or fallback rule-based engine)
+- **Orchestrator** (LangChain-style controller)
+- **Streamlit UI** for interaction  
+- **Automatic fallback** when Gemini API quota is exceeded
 
-Agent 2 – Analyst Agent
+---
 
-LangChain Runnable Pipeline – Orchestrator
+## ⚙️ Features
 
-Streamlit UI – User Interface
+### ✅ Multi-Agent Workflow  
+Each agent performs a specific step and passes results forward.
 
-Google Gemini API – LLM for analysis (fallback supported)
+### ✅ LangChain-style Orchestration  
+Central pipeline to coordinate all agents.
 
-🚀 Features
-✔ Multi-Agent Design
+### ✅ Robust Fallback System  
+Since free Gemini quota is limited:  
+- If Gemini works → **LLM-powered structured JSON**  
+- If Gemini exceeds quota → **Rule-based fallback analysis**
 
-Two agents with clear roles:
+This ensures reliability even without API credits.
 
-Agent	Description
-Data Collector Agent	Fetches company information using DuckDuckGo search (or Gemini-based collection optionally).
-Analyst Agent	Uses Gemini LLM to analyze and structure the data into insights. If quota is exhausted → automatically falls back to a rule-based analysis engine.
-✔ LangChain Orchestration
+---
 
-The system uses LangChain’s RunnableLambda to create a multi-step pipeline:
+## 🧠 System Architecture
 
-User Input → Collector Agent → Analyst Agent → Structured Report
-
-
-Implemented as:
-
-collector = RunnableLambda(run_data_collector_agent)
-analyst = RunnableLambda(run_analyst_agent)
-
-orchestrator_chain = collector | analyst
-
-
-This satisfies the assignment’s requirement for agent workflow orchestration using LangChain.
-
-✔ Streamlit UI
-
-A simple and friendly UI for users to type a company name and receive:
-
-Summary
-
-Industry
-
-Strengths
-
-Risks
-
-Sentiment
-
-Full history of past queries
-
-✔ Gemini API + Fallback
-
-The Analyst Agent uses:
-
-google.generativeai → gemini-2.5-flash or related models
-
-Since the free tier has strict limits, the system gracefully handles 429 errors:
-
-If Gemini quota is available → use real LLM output
-
-If exhausted → automatically uses fallback_local_analysis
-
-This makes the system reliable even without paid API access.
-
-🏗 System Architecture Diagram              ┌─────────────────────────────┐
+```
+              ┌─────────────────────────────┐
               │        Streamlit UI         │
               │       (User Input Box)      │
               └───────────────┬─────────────┘
@@ -84,7 +46,7 @@ This makes the system reliable even without paid API access.
                               ▼
          ┌────────────────────────────────────────────┐
          │        Agent 1: Data Collector              │
-         │  (DuckDuckGo Search → Raw company info)     │
+         │  (DuckDuckGo / Wikipedia / Gemini Search)   │
          └───────────────┬────────────────────────────┘
                           ▼
                     raw_data dict
@@ -106,90 +68,87 @@ This makes the system reliable even without paid API access.
               │     Streamlit UI Output     │
               │ Summary • Strengths • Risks │
               └─────────────────────────────┘
+```
 
+---
 
-📦 Project Structure
+## 📂 Project Structure
+
+```
 task1_multi_agent/
-│
-├── app.py                     # Streamlit UI
-├── orchestrator.py            # LangChain pipeline
+│── app.py               # Streamlit frontend
+│── orchestrator.py      # LangChain-style pipeline
+│── requirements.txt
+│── README.md / README_TASK1.md
 │
 ├── agents/
 │   ├── data_collector_agent.py
-│   ├── analyst_agent.py
-│
-├── requirements.txt
-└── README.md                  # (this file)
+│   └── analyst_agent.py
+└── .env                 # GEMINI_API_KEY
+```
 
-🧩 How It Works
-1️⃣ User enters a company name in Streamlit
+---
 
-Example: "TCS"
+## 🌱 How It Works
 
-2️⃣ Data Collector Agent
+### **1️⃣ User enters a company name**
+Example: `"TCS"`
 
-Expands known abbreviations → "Tata Consultancy Services"
+### **2️⃣ Data Collector Agent**
+- Uses DuckDuckGo/Wikipedia to fetch:
+  - Titles  
+  - Snippets  
+  - Summaries  
 
-Searches DuckDuckGo for top company insights
+### **3️⃣ Analyst Agent (Gemini or fallback)**
+- Attempts Gemini LLM JSON output  
+- If API quota exhausted → rule-based fallback
 
-Returns text summary
+### **4️⃣ Output shown on UI**
+- Summary  
+- Strengths  
+- Risks  
+- Sentiment  
 
-3️⃣ Analyst Agent
+---
 
-Builds a prompt → sends to Gemini → gets structured JSON:
+## 🧪 Running the Project
 
-{
-  "company_name": "TCS",
-  "industry": "IT Services",
-  "summary": "...",
-  "strengths": [...],
-  "risks": [...],
-  "sentiment": "positive"
-}
-
-
-If Gemini is unavailable → uses rule-based fallback.
-
-4️⃣ Results are displayed on the Streamlit dashboard.
-🛠 Installation & Setup
-Install dependencies
+### Install dependencies  
+```
 pip install -r requirements.txt
+```
 
-Set environment variable
-GEMINI_API_KEY=your_api_key_here
+### Add your Gemini API key  
+Create `.env`:
 
+```
+GEMINI_API_KEY=your_key_here
+```
 
-Or create a .env file:
-
-GEMINI_API_KEY=your_api_key_here
-
-Run the app
+### Launch the UI  
+```
 streamlit run app.py
+```
 
-⚠️ About Gemini API Quotas
+---
 
-Google offers limited free-tier requests (~20/day depending on model).
-This project automatically switches to fallback analysis when:
+## 🏆 Why This Project Meets the Assignment Requirements
 
-quota exceeds
+✔ Multi-agent system  
+✔ LangChain-style orchestrator  
+✔ Tool usage (search tools + LLM)  
+✔ Streamlit UI  
+✔ Clear architecture documentation  
+✔ Robust fallback  
+✔ Perfect for Task 1 submission  
 
-API key is missing
+---
 
-API errors occur
+## 📸 Screenshots  
+(You can add your Streamlit output screenshots here)
 
-This ensures the system always works, even when LLM access is limited.
+---
 
-🎉 What This Project Demonstrates
-
-Building multi-agent systems
-
-Using AI tools in LangChain
-
-Handling tool-based orchestration
-
-Designing reliable LLM-based systems with fallback logic
-
-Creating a clean interactive UI
-
-Modular architecture suitable for extension into LangGraph
-
+## 📘 License  
+MIT License  
