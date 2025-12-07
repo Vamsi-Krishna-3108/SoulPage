@@ -146,7 +146,7 @@ streamlit run app.py
 ---
 
 ## 📸 Screenshots  
-(You can add your Streamlit output screenshots here)
+![image1](image.png)
 
 ---
 
